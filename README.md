@@ -1,39 +1,44 @@
-# Liftoff
+# Liftoff 2
 
-A self-verifying deployment page for cPanel AI App Hosting. Open it after deploy and it checks, live, that your app really is running the way the platform says it is. Nothing on the page is mocked: a check that can't be confirmed stays amber.
+A self-verifying deployment inspector for cPanel AI App Hosting. Open it after a deploy and it checks, live, that the app is running the way the platform says it is, then lets you look inside the container. Every reading is taken by the server at the moment you load the page. A check that can't be confirmed stays amber.
+
+## What's in it
+
+| Part | What it does |
+| --- | --- |
+| Route | Six stations: source, framework signal, built separately, container, proxy, HTTPS |
+| Live telemetry | Memory (with the container limit marked), CPU and event loop delay for the last two minutes |
+| Isolation | User namespace mapping, seccomp, capabilities, cgroup limits, out-of-memory kills, filesystem |
+| Network | DNS plus npm, GitHub and Docker Hub reachability, with timings |
+| Data | Finds a linked MySQL or MariaDB database and times queries. Shows version and latency only |
+| Dependencies | Every installed package counted in the build container, largest first, plus Brotli build output |
+| Requests | The last requests the app served. Requests without forwarding headers came from the server itself |
+| Demo tools | Round-trip timing, a numbered log line, and a stop-and-recover timer |
+
+## Stack
+
+Fastify 5, with `@fastify/static` (serves the Brotli files the build step makes), `@fastify/helmet` (strict content security policy), `@fastify/rate-limit`, and `mysql2` (pure JavaScript, loaded only when a database is linked). There are no native modules, so the build needs no compiler. The front end has no framework or bundler on purpose.
 
 ## Deploy
 
-1. In cPanel (Meridian), go to **Websites & Apps**, add a website, and choose **Node.js**.
-2. Pick **Upload a file** and drop in `liftoff-cpanel-app.zip`. Select **Continue**.
-3. Confirm the defaults on the Deploy step:
-   - Framework: Express
-   - Build command: `npm run build`
-   - Start command: `npm start`
-   - Port: the app reads the `PORT` environment variable and falls back to `3000`
-4. Deploy, then open the URL.
+1. Push this folder to a public GitHub repo.
+2. In cPanel (Meridian): Websites & Apps, add a website, Node.js, Git repository, paste the HTTPS URL.
+3. Confirm the defaults: build command `npm run build`, start command `npm start`. The app reads `PORT` and falls back to `3000`.
 
-The app is deployed to a new subdomain. HTTPS comes from AutoSSL after the deploy, so the last station may stay amber for a short while.
+The footer shows the version (2.0.0) and, for Git deploys, the commit on the Runtime panel.
 
-## What the stations check
+## Settings (App Env tab, then restart)
 
-| Station | Passes when |
+| Variable | Effect |
 | --- | --- |
-| Source unpacked | The server is running from the uploaded `package.json` |
-| Framework signal | `package.json` lists dependencies the wizard can read |
-| Built separately | `build-info.json` was written by a host other than the one now running |
-| Running in a container | A Podman or Docker marker file exists |
-| Behind the proxy | The request carries forwarding headers from the web server |
-| Served over HTTPS | The browser loaded the page over `https:` |
+| `DEMO_BANNER` | Shows a line of your own at the top of the page |
+| `DEMO_CRASH=on` | Enables the Stop and recover tool. Off by default |
+| `LIFTOFF_PASSCODE` | Locks the inspector behind a passcode |
 
-## Layout
+The inspector shows server internals (host names, user mappings, reachability). If the page is public, set a passcode, or stop the app when you're done.
 
-```
-package.json         express 4.21.2 only, `build` and `start` scripts
-package-lock.json    npm lockfile (the platform reads the package manager from this)
-server.js            stats API, checks, /healthz
-scripts/build.js     records where the build ran
-public/              index.html, styles.css, app.js
-```
+## Limits worth knowing
 
-No `.env` file is included on purpose. If you add one, keep it out of the archive and use the wizard's environment variable editor instead.
+- The platform's database variable names aren't documented anywhere I could find. The Data tab accepts the usual conventions (`DATABASE_URL`, `DB_*`, `MYSQL_*`, `MARIADB_*`) and lists the names it saw.
+- Stop and recover only works if the platform restarts a stopped app. Press Start in cPanel if it doesn't come back.
+- A Git deploy only shows a commit if the clone keeps its `.git` folder.
