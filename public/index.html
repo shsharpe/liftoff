@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Liftoff · live deployment check</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231f4fe0'/%3E%3Cpath d='M16 7l7 9h-4.5v9h-5v-9H9z' fill='white'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="page">
+    <header class="top">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8"/><path d="M16 7l7 9h-4.5v9h-5v-9H9z"/></svg>
+        <span class="brand-name">Liftoff</span>
+      </div>
+      <p class="pill" id="pill" role="status" aria-live="polite" data-state="loading">Connecting…</p>
+    </header>
+
+    <section class="hero" aria-labelledby="headline">
+      <h1 id="headline">Your app is running.</h1>
+      <p class="lede">These checks run on the server, against the request you just made. Nothing here is mocked, so a station that can’t be confirmed stays amber.</p>
+
+      <ol class="route" id="route" aria-label="Deployment checks">
+        <li class="station" data-id="source" data-state="idle"><span class="marker" aria-hidden="true"></span><div class="copy"><h2>Source unpacked</h2><p>Waiting for the server…</p></div></li>
+        <li class="station" data-id="detect" data-state="idle"><span class="marker" aria-hidden="true"></span><div class="copy"><h2>Framework signal</h2><p>Waiting for the server…</p></div></li>
+        <li class="station" data-id="build" data-state="idle"><span class="marker" aria-hidden="true"></span><div class="copy"><h2>Built separately</h2><p>Waiting for the server…</p></div></li>
+        <li class="station" data-id="container" data-state="idle"><span class="marker" aria-hidden="true"></span><div class="copy"><h2>Running in a container</h2><p>Waiting for the server…</p></div></li>
+        <li class="station" data-id="proxy" data-state="idle"><span class="marker" aria-hidden="true"></span><div class="copy"><h2>Behind the proxy</h2><p>Waiting for the server…</p></div></li>
+        <li class="station" data-id="https" data-state="idle"><span class="marker" aria-hidden="true"></span><div class="copy"><h2>Served over HTTPS</h2><p>Waiting for the browser…</p></div></li>
+      </ol>
+    </section>
+
+    <section class="telemetry" aria-labelledby="telemetry-title">
+      <h2 id="telemetry-title" class="section-title">Live telemetry</h2>
+      <div class="charts">
+        <figure class="chart">
+          <figcaption>
+            <span class="chart-name">Memory</span>
+            <span class="chart-value" id="mem-value">–</span>
+          </figcaption>
+          <svg class="spark" id="mem-chart" viewBox="0 0 300 90" preserveAspectRatio="none" role="img" aria-label="Memory use over the last two minutes">
+            <line class="cap-line" id="mem-cap" x1="0" x2="300" y1="0" y2="0"/>
+            <path class="area" id="mem-area" d=""/>
+            <path class="line" id="mem-line" d=""/>
+          </svg>
+          <p class="chart-note" id="mem-note">Resident memory, last two minutes</p>
+        </figure>
+        <figure class="chart">
+          <figcaption>
+            <span class="chart-name">CPU</span>
+            <span class="chart-value" id="cpu-value">–</span>
+          </figcaption>
+          <svg class="spark" id="cpu-chart" viewBox="0 0 300 90" preserveAspectRatio="none" role="img" aria-label="CPU use over the last two minutes">
+            <path class="area" id="cpu-area" d=""/>
+            <path class="line" id="cpu-line" d=""/>
+          </svg>
+          <p class="chart-note" id="lag-note">Event loop delay –</p>
+        </figure>
+      </div>
+    </section>
+
+    <section class="facts">
+      <div class="panel">
+        <h2 class="section-title">Runtime</h2>
+        <dl id="runtime-list"></dl>
+      </div>
+      <div class="panel">
+        <h2 class="section-title">What the proxy sent</h2>
+        <dl id="proxy-list"></dl>
+        <p class="panel-note">Cookies and authorization headers are never shown.</p>
+      </div>
+    </section>
+
+    <section class="panel ping" aria-labelledby="ping-title">
+      <div class="ping-head">
+        <div>
+          <h2 id="ping-title" class="section-title">Round-trip test</h2>
+          <p class="panel-note">Sends ten requests from your browser through the web server to this app and times each one.</p>
+        </div>
+        <button type="button" class="button" id="ping-button">Run test</button>
+      </div>
+      <div class="bars" id="ping-bars" aria-hidden="true"></div>
+      <p class="ping-result" id="ping-result" role="status" aria-live="polite"></p>
+    </section>
+
+    <footer class="foot">
+      <span>Built with Claude. Deployed to cPanel.</span>
+      <span id="foot-build"></span>
+    </footer>
+  </main>
+  <script src="/app.js" defer></script>
+</body>
+</html>

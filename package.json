@@ -1,0 +1,17 @@
+{
+  "name": "liftoff",
+  "version": "1.0.0",
+  "description": "A self-verifying deployment page for cPanel AI App Hosting. Every check is run live by this server.",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "express": "4.21.2"
+  }
+}
